@@ -2,7 +2,8 @@ from os import getenv
 
 import telebot
 from dotenv import load_dotenv
-from telebot.types import Message
+
+import inf
 
 load_dotenv()
 token = getenv('BOT_TOKEN')
@@ -10,40 +11,33 @@ token = getenv('BOT_TOKEN')
 bot = telebot.TeleBot(token)
 
 
-def hi(message: Message):
-    return 'привет' in message.text.lower()
-
-
-def bay(message: Message):
-    return 'пока' in message.text.lower()
-
-
-@bot.message_handler(func=hi)
-def send_hi(message: Message):
-    bot.send_message(chat_id=message.chat.id, text=f'Привет! {message.from_user.first_name}')
-
-
-@bot.message_handler(func=bay)
-def send_bay(message: Message):
-    bot.send_message(chat_id=message.chat.id, text=f'Пока! {message.from_user.first_name}')
-
-
 @bot.message_handler(commands=['start'])
-def send_hello_message(message: Message):
-    bot.send_message(chat_id=message.chat.id, text=f'Здравствуй {message.from_user.first_name}\nЧтобы узнать что я '
-                                                   f'могу напиши команду /help')
+def send_welcome(message):
+    bot.send_message(chat_id=message.chat.id, text="Привет! Это бот-визитка Антониана Кодвина.\n"
+                                                   "Чтобы узнать о том как использовать этого бота откройте меню или "
+                                                   "введите команду /help.")
 
 
 @bot.message_handler(commands=['help'])
-def send_help_list(message: Message):
-    bot.send_message(chat_id=message.chat.id,
-                     text=f'{message.from_user.first_name} ты можешь прислать мне любое сообщение и я повторю его. '
-                          f'Если напишешь привет или пока я отвечу тем же.')
+def send_help(message):
+    bot.send_message(chat_id=message.chat.id, text="/all_info - Все информация\n"
+                                                   "/photo - Фото\n"
+                                                   "/description - Описание\n")
 
 
-@bot.message_handler(content_types=['text'])
-def send_echo(message: Message):
-    bot.send_message(chat_id=message.chat.id, text=f'Вы отправили <{message.text}>')
+@bot.message_handler(commands=['all_info'])
+def all_info(message):
+    bot.send_photo(chat_id=message.chat.id, photo=inf.o['img'], caption=f'{inf.o['name']}\n{inf.o["description"]}')
+
+
+@bot.message_handler(commands=['photo'])
+def photo(message):
+    bot.send_photo(chat_id=message.chat.id, photo=inf.o['img'])
+
+
+@bot.message_handler(commands=['description'])
+def description(message):
+    bot.send_message(chat_id=message.chat.id, text=inf.o['description'])
 
 
 bot.polling()
