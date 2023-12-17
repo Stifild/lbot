@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 
 import inf
 
+image = None
+
 load_dotenv()
 token = getenv('BOT_TOKEN')
 
@@ -29,19 +31,28 @@ def send_help(message):
 
 @bot.message_handler(commands=['all_info'])
 def all_info(message):
-    global description_txt
-    bot.send_photo(chat_id=message.chat.id, photo=inf.o['img'], caption=description_txt)
+    with open(inf.o['img'], 'rb') as image:
+        global description_txt
+        bot.send_photo(chat_id=message.chat.id, photo=image, caption=description_txt)
 
 
 @bot.message_handler(commands=['photo'])
 def photo(message):
-    bot.send_photo(chat_id=message.chat.id, photo=inf.o['img'])
+    with open(inf.o['img'], 'rb') as image:
+        bot.send_photo(chat_id=message.chat.id, photo=image)
 
 
 @bot.message_handler(commands=['description'])
 def description(message):
     global description_txt
     bot.send_message(chat_id=message.chat.id, text=description_txt)
+
+
+@bot.message_handler(content_types=['txt'])
+def send_help(message):
+    bot.send_message(chat_id=message.chat.id, text="/all_info - Все информация\n"
+                                                   "/photo - Фото\n"
+                                                   "/description - Описание\n")
 
 
 bot.polling()
